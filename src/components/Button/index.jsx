@@ -14,7 +14,7 @@ const Button = ({
   ...props
 }) => {
   const baseStyles =
-    "w-full h-full text-[1rem] focus:outline-none text-baseMedium flex justify-center items-center gap-2";
+    "w-full focus:outline-none flex justify-center items-center gap-2 rounded-[5px]";
   const variantStyles = {
     primary: "bg-blue-500 text-white hover:bg-blue-600",
     secondary: "bg-gray-300 text-gray-800 hover:bg-gray-400",
