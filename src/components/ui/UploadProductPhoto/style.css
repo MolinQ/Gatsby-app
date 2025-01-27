@@ -1,0 +1,3 @@
+.addPhotoButton {
+    @apply flex justify-center items-center bg-bg w-[50px] h-[50px] rounded-full text-dark relative;
+}

@@ -1,49 +1,31 @@
-import * as React from "react"
-import { Link } from "gatsby"
-
-const pageStyles = {
-  color: "#232129",
-  padding: "96px",
-  fontFamily: "-apple-system, Roboto, sans-serif, serif",
-}
-const headingStyles = {
-  marginTop: 0,
-  marginBottom: 64,
-  maxWidth: 320,
-}
-
-const paragraphStyles = {
-  marginBottom: 48,
-}
-const codeStyles = {
-  color: "#8A6534",
-  padding: 4,
-  backgroundColor: "#FFF4DB",
-  fontSize: "1.25rem",
-  borderRadius: 4,
-}
+import * as React from "react";
+import { navigate } from "gatsby";
+import StorageServices from "../services/StorageServices";
+import SingInForm from "../components/SingInForm";
+import { PAGE_PATH } from "../constants/pagePath";
+import ToastEmitter from "../services/ToastEmmiter";
+import TitleText from "../components/ui/TitleText/inex";
+import Button from "../components/ui/Button";
+import { BUTTON_THEM } from "../constants/buttonsDependencies";
 
 const NotFoundPage = () => {
+  const onRedirectTo = () => {
+    const user = StorageServices.getItem(SingInForm);
+    if (user) {
+      navigate(PAGE_PATH.DASHBOARD);
+    }
+    navigate(PAGE_PATH.SING_IN);
+    ToastEmitter.error("Unauthorized");
+  };
   return (
-    <main style={pageStyles}>
-      <h1 style={headingStyles}>Page not found</h1>
-      <p style={paragraphStyles}>
-        Sorry 😔, we couldn’t find what you were looking for.
-        <br />
-        {process.env.NODE_ENV === "development" ? (
-          <>
-            <br />
-            Try creating a page in <code style={codeStyles}>src/pages/</code>.
-            <br />
-          </>
-        ) : null}
-        <br />
-        <Link to="/">Go home</Link>.
-      </p>
-    </main>
-  )
-}
+    <div className="flex flex-col gap-2 justify-center items-center border p-5">
+      <TitleText>Wrong path</TitleText>
+      <Button onClick={onRedirectTo} variant={BUTTON_THEM.SECONDARY}>
+        Get back to dashboard
+      </Button>
+      ;
+    </div>
+  );
+};
 
-export default NotFoundPage
-
-export const Head = () => <title>Not found</title>
+export default NotFoundPage;

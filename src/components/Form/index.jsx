@@ -1,7 +1,7 @@
+import React from "react";
 import { Form, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { clsx } from "clsx";
-import React from "react";
 
 const FormWrapper = ({
   children,
@@ -9,6 +9,7 @@ const FormWrapper = ({
   onSubmit,
   extraClasses,
   defaultValue,
+  isReset = false,
 }) => {
   const methods = useForm({
     mode: "onChange",
@@ -17,14 +18,19 @@ const FormWrapper = ({
   });
 
   return (
-    <FormProvider {...methods} handleSubmit={onSubmit}>
+    <FormProvider {...methods}>
       <Form
         className={clsx(extraClasses, "w-full h-full")}
-        onSubmit={methods.handleSubmit(onSubmit)}
+        onSubmit={(event) => {
+          methods.handleSubmit(onSubmit)(event);
+          if (!isReset) return;
+          methods.reset();
+        }}
       >
         {children}
       </Form>
     </FormProvider>
   );
 };
+
 export default FormWrapper;

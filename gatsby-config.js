@@ -13,6 +13,12 @@ module.exports = {
     `gatsby-plugin-sharp`,
     `gatsby-transformer-sharp`,
     "gatsby-plugin-use-query-params",
+    {
+      resolve: "gatsby-plugin-page-creator",
+      options: {
+        path: `${__dirname}/src/pages/Dashboard`,
+      },
+    },
     // {
     //   resolve: "gatsby-source-filesystem",
     //   options: {

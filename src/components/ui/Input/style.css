@@ -1,0 +1,18 @@
+.inputLabel {
+    @apply text-baseMedium text-dark;
+}
+.input {
+    @apply relative pb-1.5 pt-1.5 text-[13px] h-[35px] px-2 border border-border rounded-[4px] placeholder:text-[12px] text-dark focus:outline-none
+}
+.inputWrapper {
+    @apply flex flex-col gap-2 relative
+}
+
+.errorMessage {
+    @apply text-caption text-danger absolute
+}
+
+.error {
+    @apply text-danger border-danger
+}
+

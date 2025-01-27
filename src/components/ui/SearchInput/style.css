@@ -1,0 +1,3 @@
+.searchInput {
+    @apply relative py-1.5 w-full max-w-[155px] text-baseRegular h-[30px] px-6 border border-border rounded-[4px] placeholder:text-baseMedium text-dark focus:outline-none
+}
