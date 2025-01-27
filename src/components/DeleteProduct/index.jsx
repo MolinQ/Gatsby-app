@@ -9,7 +9,9 @@ const DeleteProduct = ({
   deleteModalRef,
   onCloseDeleteModal,
   onDeleteProduct,
+  deletionLoading,
 }) => {
+  console.log(deletionLoading);
   return (
     <Modal modalRef={deleteModalRef}>
       <div className="bg-white w-full p-4 rounded-lg">
@@ -31,6 +33,8 @@ const DeleteProduct = ({
             Cancel
           </Button>
           <Button
+            disabled={deletionLoading}
+            loading={deletionLoading}
             onClick={onDeleteProduct}
             className="max-w-[100px]"
             variant={BUTTON_THEM.DANGER}

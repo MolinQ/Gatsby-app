@@ -1,1 +1,1 @@
-export const MAX_PRODUCT_CARD = 6;
+export const MAX_PRODUCT_CARD = 12;

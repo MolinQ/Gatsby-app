@@ -59,7 +59,6 @@ const ProductForm = ({ onSubmit, defaultValue, loading }) => {
       />
       <div className="flex flex-row justify-end gap-4 p-4 items-center">
         <Button
-          loading={loading}
           onClick={() => navigate(PAGE_PATH.DASHBOARD)}
           variant={BUTTON_THEM.OUTLINE}
           size="max-w-[90px] h-10"
@@ -67,6 +66,7 @@ const ProductForm = ({ onSubmit, defaultValue, loading }) => {
           Cancel
         </Button>
         <Button
+          disabled={loading}
           loading={loading}
           variant={BUTTON_THEM.PRIMARY}
           size="max-w-[90px] h-10"

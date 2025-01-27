@@ -10,11 +10,12 @@ import ProductInfoCard from "../../components/ProductInfoCard";
 import FormCard from "../../components/ui/FormCard";
 import Separator from "../../components/ui/Separator";
 import StorageServices from "../../services/StorageServices";
-import { SESSION_KEY } from "../../constants/localStorageKeys";
+import { POST_KEY, SESSION_KEY } from "../../constants/localStorageKeys";
 import ToastEmitter from "../../services/ToastEmmiter";
 import CommentForm from "../../components/CommentForm";
 import CommentsList from "../../components/CommentsList";
 import { useLocation } from "@gatsbyjs/reach-router";
+import LocalStorageServices from "../../services/StorageServices";
 
 const productService = new ProductServices();
 const fileService = new FileServices();
@@ -26,7 +27,10 @@ const ProductTemplate = () => {
   const uid = location.pathname.split("/").at(2);
 
   const fetchCurrentProduct = useCallback(async () => {
-    if (!uid) return;
+    if (!uid) {
+      navigate(PAGE_PATH.DASHBOARD);
+      return;
+    }
     const res = await productService.getProductByUid(uid);
     const product = res[0];
     const photo = await fileService.getFile(`${FILE_PATH}/${uid}`);
@@ -35,6 +39,9 @@ const ProductTemplate = () => {
 
   useEffect(() => {
     fetchCurrentProduct();
+    return () => {
+      LocalStorageServices.setItem(POST_KEY, "");
+    };
   }, [fetchCurrentProduct]);
 
   const fetchComments = useCallback(async () => {

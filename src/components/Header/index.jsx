@@ -5,7 +5,6 @@ const Header = () => {
   return (
     <div className="w-full bg-[#558FE6] h-fit p-4 px-5 flex items-center justify-between flex-wrap gap-2">
       <BurgerMenu />
-      <span className="text-h3 text-divided">Like rozetka app</span>
       <SearchInput />
     </div>
   );

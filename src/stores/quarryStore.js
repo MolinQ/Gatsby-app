@@ -1,9 +1,8 @@
 import { create } from "zustand";
 
 const useQuarryStore = create((set) => ({
-  searchText: localStorage.getItem("searchText") || "",
+  searchText: "",
   setSearchText: (newValue) => {
-    localStorage.setItem("searchText", newValue);
     set({ searchText: newValue });
   },
 }));

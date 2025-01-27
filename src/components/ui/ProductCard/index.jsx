@@ -20,6 +20,7 @@ const ProductCard = ({
   onCloseDeleteModal,
   isDeleteModalOpen,
   productUid,
+  deletionLoading,
 }) => {
   const deleteModalRef = useRef(null);
   const { setUid } = useProductUidStore();
@@ -74,6 +75,7 @@ const ProductCard = ({
       {isDeleteModalOpen &&
         createPortal(
           <DeleteProduct
+            deletionLoading={deletionLoading}
             deleteModalRef={deleteModalRef}
             onDeleteProduct={onDeleteProduct}
             onCloseDeleteModal={onCloseDeleteModal}

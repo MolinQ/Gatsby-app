@@ -1,6 +1,6 @@
 import React from "react";
-import Loader from "../../../../.cache/loader";
 import { clsx } from "clsx";
+import Loader from "../../Loader";
 
 const Button = ({
   variant,

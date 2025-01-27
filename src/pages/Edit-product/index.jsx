@@ -83,7 +83,7 @@ const EditProductPage = () => {
     }
   };
   useEffect(() => {
-    fetchProductByUid(uid);
+    fetchProductByUid();
   }, [fetchProductByUid]);
   return (
     <div className="flex items-center flex-col">

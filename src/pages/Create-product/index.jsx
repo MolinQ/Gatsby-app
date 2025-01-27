@@ -2,10 +2,6 @@ import React, { useRef, useState } from "react";
 import Header from "../../components/Header";
 import FormCard from "../../components/ui/FormCard";
 import Separator from "../../components/ui/Separator";
-import Form from "../../components/Form";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
-import { BUTTON_THEM } from "../../constants/buttonsDependencies";
 import { navigate } from "gatsby";
 import { PAGE_PATH } from "../../constants/pagePath";
 import ProductServices from "../../services/ProductServices";
@@ -26,6 +22,7 @@ const CreateProductPage = () => {
   const [file, setFile] = useState(null);
   const [isOutPhoto, setIsOutPhoto] = useState(false);
   const user = JSON.parse(LocalStorageServices.getItem(SESSION_KEY));
+  const [loading, setLoading] = useState(false);
 
   const onHandleAddPhoto = () => {
     fileInputRef.current?.click();
@@ -40,6 +37,7 @@ const CreateProductPage = () => {
   };
 
   const onSubmit = async (data) => {
+    setLoading(true);
     if (!file) {
       setIsOutPhoto(true);
       ToastEmitter.error(PHOTO_ERRORS.NO_PHOTO);
@@ -63,6 +61,7 @@ const CreateProductPage = () => {
       );
       await productService.createNewProduct(data, productUid, uid, displayName);
     } finally {
+      setLoading(false);
       navigate(PAGE_PATH.DASHBOARD);
     }
   };
@@ -83,7 +82,7 @@ const CreateProductPage = () => {
             />
           </div>
           <Separator indents="py-2" />
-          <ProductForm onSubmit={onSubmit}></ProductForm>
+          <ProductForm loading={loading} onSubmit={onSubmit}></ProductForm>
         </FormCard>
       </div>
     </div>
