@@ -7,7 +7,7 @@ import FormWrapper from "../Form";
 import { useForm } from "react-hook-form";
 import { RESET_FORM } from "../../constants/resetForm";
 
-const CommentForm = ({ onSendComment }) => {
+const CommentForm = ({ onSendComment, isSetComment }) => {
   const { formState } = useForm();
 
   return (
@@ -26,7 +26,8 @@ const CommentForm = ({ onSendComment }) => {
       />
       <div className="w-full flex justify-end">
         <Button
-          disabled={!formState.isValid}
+          loading={isSetComment}
+          disabled={isSetComment}
           type="submit"
           variant={BUTTON_THEM.PRIMARY}
           className="w-full max-w-[100px] m-3"

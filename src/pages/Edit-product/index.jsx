@@ -16,6 +16,7 @@ import ToastEmitter from "../../services/ToastEmmiter";
 import { PHOTO_ERRORS } from "../../constants/photoValidationMessages";
 import { navigate } from "gatsby";
 import { PAGE_PATH } from "../../constants/pagePath";
+import { EDIT_PRODUCT_SUCCESS } from "../../constants/submitMessages";
 
 const productService = new ProductServices();
 const fileService = new FileServices();
@@ -27,6 +28,8 @@ const EditProductPage = () => {
   const [isOutPhoto, setIsOutPhoto] = useState(false);
   const [loading, setLoading] = useState(false);
   const user = JSON.parse(LocalStorageServices.getItem(SESSION_KEY));
+  const previousPath =
+    typeof window !== "undefined" ? window.__PREVIOUS_PATH__ : null;
 
   const fetchProductByUid = useCallback(async () => {
     if (!uid) return;
@@ -79,7 +82,12 @@ const EditProductPage = () => {
       );
     } finally {
       setLoading(false);
-      navigate(PAGE_PATH.DASHBOARD);
+      ToastEmitter.success(EDIT_PRODUCT_SUCCESS);
+      if (previousPath === `${PAGE_PATH.DASHBOARD}/`) {
+        navigate(PAGE_PATH.DASHBOARD);
+      } else {
+        navigate(PAGE_PATH.MY_PRODUCTS);
+      }
     }
   };
   useEffect(() => {

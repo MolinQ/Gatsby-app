@@ -21,3 +21,12 @@ export const wrapPageElement = ({ element, props }) => {
 
   return element;
 };
+
+let previousPath = null;
+
+export const onRouteUpdate = ({ location }) => {
+  if (typeof window !== "undefined") {
+    window.__PREVIOUS_PATH__ = previousPath;
+    previousPath = location.pathname;
+  }
+};

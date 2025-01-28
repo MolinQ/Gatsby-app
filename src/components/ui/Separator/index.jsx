@@ -1,8 +1,8 @@
 import React from "react";
-const Separator = ({ indents }) => {
+const Separator = ({ indents, separatorColor = "bg-divided" }) => {
   return (
     <div className={`w-full ${indents}`}>
-      <hr className="bg-divided h-[1.5px]" />
+      <hr className={`${separatorColor} h-[1.5px]`} />
     </div>
   );
 };

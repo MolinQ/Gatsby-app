@@ -3,8 +3,8 @@ import React from "react";
 const CommentsList = ({ comments }) => {
   return (
     <div>
-      {comments.length > 0 ? (
-        comments.map((comment, index) => (
+      {comments && comments?.length > 0 ? (
+        comments?.map((comment, index) => (
           <div
             key={comment.productUid + index}
             className="flex flex-row gap-2 mt-5 items-start last:border-none border-b border-divided p-3 text-base"

@@ -19,13 +19,6 @@ module.exports = {
         path: `${__dirname}/src/pages/Dashboard`,
       },
     },
-    // {
-    //   resolve: "gatsby-source-filesystem",
-    //   options: {
-    //     name: `images`,
-    //     path: `${__dirname}/src/images`,
-    //   },
-    // },
     {
       resolve: "gatsby-plugin-svgr",
       options: {

@@ -14,6 +14,8 @@ import LocalStorageServices from "../../services/StorageServices";
 import { SESSION_KEY } from "../../constants/localStorageKeys";
 import ProductForm from "../../components/Product-form";
 import UploadProductPhoto from "../../components/ui/UploadProductPhoto";
+import { CREATE_PRODUCT_SUCCESS } from "../../constants/submitMessages";
+import { FirebaseError } from "@firebase/app";
 
 const productService = new ProductServices();
 const fileService = new FileServices();
@@ -23,6 +25,8 @@ const CreateProductPage = () => {
   const [isOutPhoto, setIsOutPhoto] = useState(false);
   const user = JSON.parse(LocalStorageServices.getItem(SESSION_KEY));
   const [loading, setLoading] = useState(false);
+  const previousPath =
+    typeof window !== "undefined" ? window.__PREVIOUS_PATH__ : null;
 
   const onHandleAddPhoto = () => {
     fileInputRef.current?.click();
@@ -60,9 +64,18 @@ const CreateProductPage = () => {
         productUid,
       );
       await productService.createNewProduct(data, productUid, uid, displayName);
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        ToastEmitter.error(error.message);
+      }
     } finally {
       setLoading(false);
-      navigate(PAGE_PATH.DASHBOARD);
+      ToastEmitter.success(CREATE_PRODUCT_SUCCESS);
+      if (previousPath === `${PAGE_PATH.DASHBOARD}/`) {
+        navigate(PAGE_PATH.DASHBOARD);
+      } else {
+        navigate(PAGE_PATH.MY_PRODUCTS);
+      }
     }
   };
   return (

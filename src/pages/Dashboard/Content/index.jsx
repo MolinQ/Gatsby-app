@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ProductCard from "../../../components/ui/ProductCard";
-import { ReactComponent as SortIcon } from "../../../images/sort-svgrepo-com.svg";
 import Button from "../../../components/ui/Button";
 import { BUTTON_THEM } from "../../../constants/buttonsDependencies";
 import { navigate } from "gatsby";
@@ -21,159 +20,139 @@ import Loader from "../../../components/Loader";
 import { MAX_PRODUCT_CARD } from "../../../constants/maxProductCount";
 import useQuarryStore from "../../../stores/quarryStore";
 import { CreateProductWithImage } from "../../../helpers/createProductWithImage";
-import useLoading from "../../../hooks/useLoading";
-import { sortProducts } from "../../../helpers/sortProducts";
+import SortButton from "../../../components/SortButton";
+import ToastEmitter from "../../../services/ToastEmmiter";
+import { DELETE_PRODUCT_SUCCESS } from "../../../constants/submitMessages";
+import { useDebounce } from "use-debounce";
 const Content = () => {
   const [products, setProducts] = useState([]);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-  const { uid, setUid } = useProductUidStore();
-  const { searchText } = useQuarryStore();
-  const { requestData, loading } = useLoading();
-  const [deletionLoading, setDeletionLoading] = useState(false);
-  const [productAllLoading, setProductAllLoading] = useState(true);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleteProduct, setIsDeleteProduct] = useState(false);
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
   const sessionInfo = JSON.parse(LocalStorageServices.getItem(SESSION_KEY));
   const [productCount, setProductCount] = useState(0);
   const { pathname } = location;
+  const { searchText } = useQuarryStore();
+  const [debounceText] = useDebounce(searchText, 400);
+  const { setUid } = useProductUidStore();
   const [order, setOrder] = useState(SORT_TYPE.ASK);
+  const [lastItem, setLastItem] = useState("");
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
-  const fetchAllData = useCallback(async () => {
-    await requestData(async () => {
-      const count = await fetchProductCount();
-      setProductCount(count);
-      const response = await fetchProducts(
-        searchText,
-        products.at(-1)?.productUid || "",
-        MAX_PRODUCT_CARD > productCount
-          ? MAX_PRODUCT_CARD
-          : productCount - MAX_PRODUCT_CARD,
-      );
+  const fetchData = useCallback(
+    async (reset = false) => {
+      try {
+        setLoading(true);
+        let response;
+        if (pathname === PAGE_PATH.MY_PRODUCTS) {
+          const { uid } = sessionInfo;
+          response = await fetchUserProducts(
+            uid,
+            debounceText,
+            reset ? "" : lastItem,
+            MAX_PRODUCT_CARD,
+          );
+          setProductCount(await fetchUserProductCount(uid, debounceText));
+        } else {
+          response = await fetchProducts(
+            debounceText,
+            reset ? "" : lastItem,
+            MAX_PRODUCT_CARD,
+          );
+          const count = await fetchProductCount(debounceText);
+          setProductCount(count);
+        }
 
-      const productsWithImages = await CreateProductWithImage(response);
-      setProducts((prevState) => [...prevState, ...productsWithImages]);
-    });
-  }, [products, productCount, searchText]);
+        const productsWithImages = await CreateProductWithImage(response);
+        if (reset) {
+          setProducts(productsWithImages);
+        } else {
+          setProducts((prev) => [...prev, ...productsWithImages]);
+        }
+        if (productsWithImages.length > 0) {
+          setLastItem(productsWithImages.at(-1)?.productUid || "");
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pathname, debounceText, sessionInfo, lastItem],
+  );
 
-  const fetchUserData = useCallback(async () => {
-    await requestData(async () => {
-      const { uid } = sessionInfo;
-      const count = await fetchUserProductCount(uid);
-      setProductCount(count);
-      const response = await fetchUserProducts(
-        uid,
-        searchText,
-        products.at(-1)?.productUid || "",
-        MAX_PRODUCT_CARD > productCount
-          ? MAX_PRODUCT_CARD
-          : productCount - MAX_PRODUCT_CARD,
-      );
-      const productsWithImages = await CreateProductWithImage(response);
-      setProducts((prevState) => [...prevState, ...productsWithImages]);
-    });
-  }, [products, productCount, sessionInfo, searchText]);
+  useEffect(() => {
+    setLastItem("");
+    fetchData(true);
+  }, [debounceText, pathname]);
 
-  const onDeleteProduct = async () => {
-    setDeletionLoading(true);
-    await handleProductDeletion(uid);
-    const updatedProducts = products.filter((item) => item.productUid !== uid);
-    setProducts(updatedProducts);
-    if (pathname === PAGE_PATH.DASHBOARD) {
-      const count = await fetchProductCount();
-      setProductCount(count);
-    } else {
-      const count = await fetchUserProductCount(uid);
-      setProductCount(count);
-    }
-    setIsDeleteModalOpen(false);
-    setDeletionLoading(false);
-  };
+  const onLoadMore = useCallback(() => {
+    fetchData();
+  }, [fetchData]);
 
   const onHandleSorting = () => {
-    const sortedProducts = sortProducts(products, order);
+    const sortedProducts = [...products].sort((a, b) => {
+      return order === SORT_TYPE.ASK ? a.price - b.price : b.price - a.price;
+    });
     setProducts(sortedProducts);
     setOrder((prevDirection) =>
       prevDirection === SORT_TYPE.ASK ? SORT_TYPE.DESK : SORT_TYPE.ASK,
     );
   };
 
-  const onLoadMore = useCallback(async () => {
-    if (pathname !== PAGE_PATH.MY_PRODUCTS) {
-      await fetchAllData();
-    } else {
-      await fetchUserData();
-    }
-  }, [pathname]);
-
-  const firstRender = useCallback(async () => {
-    try {
-      if (pathname !== PAGE_PATH.MY_PRODUCTS) {
-        await fetchAllData();
-      } else {
-        await fetchUserData();
-      }
-    } finally {
-      setProductAllLoading(false);
-    }
-  }, [pathname]);
-  useEffect(() => {
-    firstRender();
-  }, [firstRender]);
-
-  const onOpenDeleteModal = () => {
-    setIsDeleteModalOpen(true);
-  };
-  const onCloseDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-  };
   return (
     <>
       <div className="w-full p-5 flex items-center justify-center gap-4 flex-wrap h-full">
-        <div className="w-full bg-white h-[30px] flex justify-start items-center p-5  cursor-pointer rounded-lg">
-          <button className="flex flex-row gap-2 " onClick={onHandleSorting}>
-            <SortIcon />
-            <span className="text-sm text-dark">Sort by price</span>
-          </button>
+        <div className="w-full bg-white h-[30px] p-5 flex flex-row gap-2 justify-start items-center cursor-pointer rounded-lg">
+          <SortButton onHandleSorting={onHandleSorting} />
         </div>
         <div className="flex flex-row justify-end w-full">
-          {pathname !== PAGE_PATH.MY_PRODUCTS && (
-            <Button
-              onClick={() => navigate(PAGE_PATH.CREATE_PRODUCT)}
-              variant={BUTTON_THEM.PRIMARY}
-              className="max-w-[120px]"
-            >
-              Create new
-            </Button>
-          )}
+          <Button
+            onClick={() => navigate(PAGE_PATH.CREATE_PRODUCT)}
+            variant={BUTTON_THEM.PRIMARY}
+            className="max-w-[120px]"
+          >
+            Create new
+          </Button>
         </div>
-        {productAllLoading ? (
-          <div className="mt-5">
-            <Loader size="size-8" />
-          </div>
+
+        {products.length <= 0 ? (
+          <p className="flex justify-center items-center gap-4">
+            No one product here{" "}
+            {isFirstRender && loading && <Loader size={"size-5"} />}
+          </p>
         ) : (
           products.map((item) => (
             <div className="w-full max-w-[350px]" key={item.productUid}>
               <ProductCard
-                deletionLoading={deletionLoading}
-                onOpenDeleteModal={onOpenDeleteModal}
-                onCloseDeleteModal={onCloseDeleteModal}
                 isDeleteModalOpen={isDeleteModalOpen}
-                onDeleteProduct={onDeleteProduct}
+                onOpenDeleteModal={() => setIsDeleteModalOpen(true)}
+                onCloseDeleteModal={() => setIsDeleteModalOpen(false)}
+                deletionLoading={isDeleteProduct}
+                onDeleteProduct={async () => {
+                  setIsDeleteProduct(true);
+                  await handleProductDeletion(item.productUid);
+                  setProducts((prev) =>
+                    prev.filter(
+                      (product) => product.productUid !== item.productUid,
+                    ),
+                  );
+                  setIsDeleteProduct(false);
+                  await fetchData();
+                  ToastEmitter.success(DELETE_PRODUCT_SUCCESS);
+                  setIsDeleteModalOpen(false);
+                }}
                 onGoDetails={() => {
                   setUid(item.productUid);
                   navigate(`${PAGE_PATH.DASHBOARD}/${item.productUid}`);
                 }}
-                productUid={item.productUid}
-                image={item.image}
-                price={item.price}
-                title={item.title}
-                description={item.description}
-              ></ProductCard>
+                {...item}
+              />
             </div>
           ))
         )}
       </div>
       <div className="flex justify-center p-5">
-        {products.length !== productCount && products.length > 0 && (
+        {products.length < productCount && products.length > 0 && (
           <p
             onClick={onLoadMore}
             className="text-baseRegular cursor-pointer text-accent flex gap-2 items-center"

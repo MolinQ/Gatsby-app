@@ -20,9 +20,9 @@ export const fetchUserProducts = async (
   );
 };
 
-export const fetchProductCount = async () => {
-  return await productService.getProductCount();
+export const fetchProductCount = async (searchText) => {
+  return await productService.getProductCount(searchText);
 };
-export const fetchUserProductCount = async (userUid) => {
-  return await productService.getUserProductCount(userUid);
+export const fetchUserProductCount = async (userUid, searchText) => {
+  return await productService.getUserProductCount(userUid, searchText);
 };

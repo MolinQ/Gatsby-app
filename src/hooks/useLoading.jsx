@@ -5,20 +5,23 @@ import ToastEmitter from "../services/ToastEmmiter";
 const useLoading = (callback, deps) => {
   const [loading, setLoading] = useState(false);
 
-  const requestData = useCallback(async (callback) => {
-    setLoading(true);
-    try {
-      await callback();
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        ToastEmitter.error(error.message);
-      } else if (error instanceof Error) {
-        ToastEmitter.error(error);
+  const requestData = useCallback(
+    async (callback) => {
+      setLoading(true);
+      try {
+        await callback();
+      } catch (error) {
+        if (error instanceof FirebaseError) {
+          ToastEmitter.error(error.message);
+        } else if (error instanceof Error) {
+          ToastEmitter.error(error);
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  }, deps);
+    },
+    [deps],
+  );
   return { loading, requestData };
 };
 

@@ -90,20 +90,34 @@ class ProductServices extends FirebaseService {
     });
   }
 
-  async getProductCount() {
-    const queryBoards = query(this.collectionProductRef);
-    const boardsCounter = await getCountFromServer(queryBoards);
+  async getProductCount(searchText) {
+    let queryProduct = query(this.collectionProductRef);
+    if (searchText) {
+      queryProduct = query(
+        queryProduct,
+        where("title", ">=", searchText),
+        where("title", "<=", searchText + "\uf8ff"),
+      );
+    }
+    const boardsCounter = await getCountFromServer(queryProduct);
 
     return boardsCounter.data().count;
   }
 
-  async getUserProductCount(userUid) {
-    const queryBoards = query(
+  async getUserProductCount(userUid, searchText) {
+    let queryProduct = query(
       this.collectionProductRef,
       orderBy("ownerUid"),
       where("ownerUid", "==", userUid),
     );
-    const boardsCounter = await getCountFromServer(queryBoards);
+    if (searchText) {
+      queryProduct = query(
+        queryProduct,
+        where("title", ">=", searchText),
+        where("title", "<=", searchText + "\uf8ff"),
+      );
+    }
+    const boardsCounter = await getCountFromServer(queryProduct);
 
     return boardsCounter.data().count;
   }
@@ -127,6 +141,7 @@ class ProductServices extends FirebaseService {
       logOwnerUid: ownerUid,
       productUid: productUid,
       fullName: displayName,
+      commentUid: commentUid,
     });
   }
   async getCommentsBytProductUid(productUid) {

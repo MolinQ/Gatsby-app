@@ -11,7 +11,6 @@ const DeleteProduct = ({
   onDeleteProduct,
   deletionLoading,
 }) => {
-  console.log(deletionLoading);
   return (
     <Modal modalRef={deleteModalRef}>
       <div className="bg-white w-full p-4 rounded-lg">

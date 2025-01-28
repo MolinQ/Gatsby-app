@@ -5,7 +5,7 @@ import { ReactComponent as SearchIcon } from "../../../images/search-icon.svg";
 import { SEARCH_INPUT_PLACEHOLDER } from "../../../constants/inputDependencies";
 import { useLocation } from "@gatsbyjs/reach-router";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useQuarryStore from "../../../stores/quarryStore";
 
 const SearchInput = ({ classForWith }) => {
@@ -15,8 +15,7 @@ const SearchInput = ({ classForWith }) => {
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || "",
   );
-  const { searchText, setSearchText } = useQuarryStore();
-  console.log(searchText);
+  const { setSearchText } = useQuarryStore();
 
   const onSetValueToQuery = (event) => {
     const searchText = event.target.value;
@@ -32,6 +31,15 @@ const SearchInput = ({ classForWith }) => {
     setSearchText(event.target.value);
   };
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const initialSearchQuery = searchParams.get("search") || "";
+    setSearchQuery(initialSearchQuery);
+    setSearchText(initialSearchQuery);
+    return () => {
+      setSearchQuery("");
+    };
+  }, []);
   return (
     <div className="relative">
       <input

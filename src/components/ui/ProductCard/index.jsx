@@ -7,7 +7,6 @@ import { createPortal } from "react-dom";
 import useProductUidStore from "../../../stores/selectedProductInfo";
 import { navigate } from "gatsby";
 import { PAGE_PATH } from "../../../constants/pagePath";
-import { useLocation } from "@gatsbyjs/reach-router";
 
 const ProductCard = ({
   image,
